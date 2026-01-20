@@ -332,4 +332,26 @@ echo "================================================"
 echo "✅ Jupyter Lab is running and accessible via the web interface"
 echo "================================================"
 
+if [ "$ENABLE_SSH" = "true" ]; then
+    echo "🔐 Enabling SSH access..."
+
+    if ! command -v sshd >/dev/null 2>&1; then
+        echo "Installing openssh-server..."
+        apt-get update
+        apt-get install -y openssh-server
+    fi
+
+    mkdir -p /var/run/sshd
+    mkdir -p /root/.ssh
+    chmod 700 /root/.ssh
+
+    if [ -n "$SSH_PUBLIC_KEY" ]; then
+        echo "$SSH_PUBLIC_KEY" >> /root/.ssh/authorized_keys
+        chmod 600 /root/.ssh/authorized_keys
+    fi
+
+    echo "Starting sshd..."
+    /usr/sbin/sshd
+fi
+
 sleep infinity
